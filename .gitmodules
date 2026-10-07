@@ -13,3 +13,6 @@
 [submodule "MuConvert"]
 	path = MuConvert
 	url = https://github.com/MuNET-OSS/MuConvert.git
+[submodule "MuConvert-Alpha"]
+	path = MuConvert-Alpha
+	url = https://github.com/SaltNya/MuConvert-Alpha.git
