@@ -96,6 +96,35 @@ export enum AssetType {
   Movie = "Movie",
 }
 
+export interface AlphaDifficultyOption {
+  id?: string | null;
+  name?: string | null;
+  color?: string | null;
+}
+
+export interface AlphaDifficultySelection {
+  theme?: string | null;
+}
+
+export interface AlphaPreviewOptions {
+  /** @format double */
+  noteSpeed?: number;
+  /** @format double */
+  touchSpeed?: number;
+  /** @format double */
+  startTime?: number;
+}
+
+export interface AlphaPreviewSession {
+  session?: string | null;
+  playing?: boolean;
+  message?: string | null;
+}
+
+export interface AlphaTapInHoldSelection {
+  allowTapInHold?: boolean | null;
+}
+
 export interface AppVersionResult {
   version?: string | null;
   /** @format int32 */
@@ -310,6 +339,8 @@ export interface ImportChartCheckResult {
   first?: number;
   previewTime?: SetAudioPreviewRequest;
   maidataLevels?: number[] | null;
+  requiresAlphaChoice?: boolean;
+  alphaAssets?: string[] | null;
 }
 
 export interface ImportChartMessage {
@@ -485,6 +516,19 @@ export interface SettingsDto {
   uiZoom?: number;
   /** @format double */
   targetDpiScale?: number;
+}
+
+export interface SinmaiAlphaPreferences {
+  suppressNotice?: boolean;
+}
+
+export interface SinmaiAlphaStatus {
+  installed?: boolean;
+  version?: string | null;
+  assetsReady?: boolean;
+  suppressNotice?: boolean;
+  packagePath?: string | null;
+  previewReady?: boolean;
 }
 
 export interface UploadAssetDirResult {
@@ -770,7 +814,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title MaiChartManager
+ * @title MaiChartManager.GenClient
  * @version 1.0
  */
 export class Api<
@@ -864,6 +908,63 @@ export class Api<
       this.request<void, any>({
         path: `/MaiChartManagerServlet/DeleteVersionApi/${id}`,
         method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags AlphaPreview
+     * @name StartAlphaPreview
+     * @request POST:/MaiChartManagerServlet/StartAlphaPreviewApi/{assetDir}/{id}/{level}
+     */
+    StartAlphaPreview: (
+      assetDir: string,
+      id: number,
+      level: number,
+      data: AlphaPreviewOptions,
+      query?: {
+        side?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<AlphaPreviewSession, any>({
+        path: `/MaiChartManagerServlet/StartAlphaPreviewApi/${assetDir}/${id}/${level}`,
+        method: "POST",
+        query: query,
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags AlphaPreview
+     * @name StopAlphaPreview
+     * @request POST:/MaiChartManagerServlet/StopAlphaPreviewApi/{session}
+     */
+    StopAlphaPreview: (session: string, params: RequestParams = {}) =>
+      this.request<AlphaPreviewSession, any>({
+        path: `/MaiChartManagerServlet/StopAlphaPreviewApi/${session}`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags AlphaPreview
+     * @name GetAlphaPreviewState
+     * @request GET:/MaiChartManagerServlet/GetAlphaPreviewStateApi/{session}
+     */
+    GetAlphaPreviewState: (session: string, params: RequestParams = {}) =>
+      this.request<AlphaPreviewSession, any>({
+        path: `/MaiChartManagerServlet/GetAlphaPreviewStateApi/${session}`,
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -1225,6 +1326,8 @@ export class Api<
         file?: File;
         shift?: ShiftMethod;
         side?: string;
+        /** @default false */
+        useAlpha?: boolean;
       },
       params: RequestParams = {},
     ) =>
@@ -1594,6 +1697,7 @@ export class Api<
         file?: File;
         /** @default false */
         isReplacement?: boolean;
+        useAlpha?: boolean;
       },
       params: RequestParams = {},
     ) =>
@@ -1638,6 +1742,9 @@ export class Api<
         utageRightLevel?: number;
         /** @default false */
         debug?: boolean;
+        /** @default false */
+        useAlpha?: boolean;
+        assets?: File[];
       },
       params: RequestParams = {},
     ) =>
@@ -2867,6 +2974,139 @@ export class Api<
       this.request<void, any>({
         path: `/MaiChartManagerServlet/OpenExternalUrlApi`,
         method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags SinmaiAlpha
+     * @name GetAlphaDifficultyThemes
+     * @request GET:/MaiChartManagerServlet/GetAlphaDifficultyThemesApi
+     */
+    GetAlphaDifficultyThemes: (params: RequestParams = {}) =>
+      this.request<AlphaDifficultyOption[], any>({
+        path: `/MaiChartManagerServlet/GetAlphaDifficultyThemesApi`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags SinmaiAlpha
+     * @name GetAlphaTapInHold
+     * @request GET:/MaiChartManagerServlet/GetAlphaTapInHoldApi/{assetDir}/{id}/{level}
+     */
+    GetAlphaTapInHold: (
+      assetDir: string,
+      id: number,
+      level: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<AlphaTapInHoldSelection, any>({
+        path: `/MaiChartManagerServlet/GetAlphaTapInHoldApi/${assetDir}/${id}/${level}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags SinmaiAlpha
+     * @name SetAlphaTapInHold
+     * @request PUT:/MaiChartManagerServlet/SetAlphaTapInHoldApi/{assetDir}/{id}/{level}
+     */
+    SetAlphaTapInHold: (
+      assetDir: string,
+      id: number,
+      level: number,
+      data: AlphaTapInHoldSelection,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/SetAlphaTapInHoldApi/${assetDir}/${id}/${level}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags SinmaiAlpha
+     * @name GetSinmaiAlphaStatus
+     * @request GET:/MaiChartManagerServlet/GetSinmaiAlphaStatusApi
+     */
+    GetSinmaiAlphaStatus: (params: RequestParams = {}) =>
+      this.request<SinmaiAlphaStatus, any>({
+        path: `/MaiChartManagerServlet/GetSinmaiAlphaStatusApi`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags SinmaiAlpha
+     * @name SetSinmaiAlphaPreferences
+     * @request PUT:/MaiChartManagerServlet/SetSinmaiAlphaPreferencesApi
+     */
+    SetSinmaiAlphaPreferences: (
+      data: SinmaiAlphaPreferences,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/SetSinmaiAlphaPreferencesApi`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags SinmaiAlpha
+     * @name GetAlphaDifficulty
+     * @request GET:/MaiChartManagerServlet/GetAlphaDifficultyApi/{assetDir}/{id}/{level}
+     */
+    GetAlphaDifficulty: (
+      assetDir: string,
+      id: number,
+      level: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<AlphaDifficultySelection, any>({
+        path: `/MaiChartManagerServlet/GetAlphaDifficultyApi/${assetDir}/${id}/${level}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags SinmaiAlpha
+     * @name SetAlphaDifficulty
+     * @request PUT:/MaiChartManagerServlet/SetAlphaDifficultyApi/{assetDir}/{id}/{level}
+     */
+    SetAlphaDifficulty: (
+      assetDir: string,
+      id: number,
+      level: number,
+      data: AlphaDifficultySelection,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/SetAlphaDifficultyApi/${assetDir}/${id}/${level}`,
+        method: "PUT",
         body: data,
         type: ContentType.Json,
         ...params,

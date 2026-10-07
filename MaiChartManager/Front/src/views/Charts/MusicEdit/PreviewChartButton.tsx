@@ -2,6 +2,8 @@ import { defineComponent } from "vue";
 import { selectedADir } from "@/store/refs";
 import { t } from "@/locales";
 import { isPhotino } from "@/client/api";
+import AlphaPreviewButton from './AlphaPreviewButton';
+import { sinmaiAlpha } from '@/store/sinmaiAlpha';
 import { Button } from "@munet/ui";
 
 export type ChartSide = "L" | "R";
@@ -43,9 +45,9 @@ export default defineComponent({
     };
 
     return () => (
-      <Button onClick={openPreview}>
-        {t('music.edit.previewChart')}
-      </Button>
+      <>{sinmaiAlpha.value?.installed && <AlphaPreviewButton songId={props.songId} level={props.level} side={props.side}/>}<Button onClick={openPreview}>
+        基础预览
+      </Button></>
     );
   },
 });

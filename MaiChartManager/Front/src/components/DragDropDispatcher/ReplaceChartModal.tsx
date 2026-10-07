@@ -1,3 +1,4 @@
+import { checkImportConverter } from '@/utils/checkImportConverter';
 import { t } from '@/locales';
 import { globalCapture, selectedADir, selectedLevel, selectedMusic, selectMusicId, updateMusicList } from '@/store/refs';
 import { Button, Modal, Radio, showTransactionalDialog, addToast } from '@munet/ui';
@@ -24,6 +25,7 @@ export default defineComponent({
   setup() {
 
     const checking = ref(false);
+    const useAlpha = ref(false);
     const file = shallowRef<File | null>(null);
     const show = ref<"" | "ma2" | "maidata" | "failed">("");
     const targetSide = ref<ChartSide>();
@@ -52,13 +54,16 @@ export default defineComponent({
         selectedFile = await fHandle.getFile();
       }
       file.value = selectedFile;
+      useAlpha.value = false;
 
       const name = selectedFile.name;
       // 对maidata.txt和ma2分类讨论，前者执行ImportCheck
       if (name === "maidata.txt") {
         try {
           checking.value = true;
-          const r = (await api.ImportChartCheck({file: selectedFile, isReplacement: true})).data;
+          const checked = await checkImportConverter(selectedFile, selectedMusic.value?.name ?? selectedFile.name, true, () => !checking.value);
+          const r = checked.check;
+          useAlpha.value = checked.useAlpha;
           if (!checking.value) return; // 说明检查期间用户点击了关闭按钮、取消了操作。则不再执行后续流程。
 
           apiResp.value = r;
@@ -66,6 +71,8 @@ export default defineComponent({
             tempOption.value = {shift: selectedMusic.value.shiftMethod as ShiftMethod, shiftLocked: true};
           }
           show.value = "maidata";
+        } catch (error) {
+          if ((error as { name?: string })?.name !== 'AbortError') throw error;
         } finally {
           checking.value = false;
         }
@@ -88,6 +95,7 @@ export default defineComponent({
         show.value = "";
         const result = (await api.ReplaceChart(selectMusicId.value, level, selectedADir.value, {
           file: uploadFile,
+          useAlpha: replacingMaidata && useAlpha.value,
           shift: tempOption.value.shift,
           side,
         })).data;

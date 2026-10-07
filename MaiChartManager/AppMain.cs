@@ -266,7 +266,7 @@ public partial class AppMain : ISingleInstance
         CultureInfo.CurrentUICulture = culture;
         
         // 给外部依赖库设置Locale
-        MuConvert.utils.Utils.SetLocale(new CultureInfo(locale));
+        MaiChartManager.Services.ChartConversion.SetLocale(new CultureInfo(locale));
 
         StaticSettings.Config.Save();
     }

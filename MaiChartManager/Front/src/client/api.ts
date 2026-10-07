@@ -23,6 +23,20 @@ export const apiClient = new Api({
   },
 })
 
+// 生成客户端会把 File[] 转成 JSON。目录导入需以同名 multipart 字段上传每张皮肤。
+type ChartImportData = Parameters<typeof apiClient.maiChartManagerServlet.ImportChart>[0];
+export const importChartWithAssets = (data: ChartImportData) => {
+  const form = new FormData();
+  for (const [key, value] of Object.entries(data)) {
+    if (value == null) continue;
+    for (const entry of Array.isArray(value) ? value : [value]) {
+      form.append(key, entry instanceof Blob ? entry : String(entry));
+    }
+  }
+  // 自动生成的请求签名只列出对象类型，底层格式化器本身接受 FormData。
+  return apiClient.maiChartManagerServlet.ImportChart(form as unknown as ChartImportData);
+};
+
 export default apiClient.maiChartManagerServlet
 
 export const aquaMaiVersionConfig = new AquaMaiVersionConfigApi({

@@ -1,4 +1,5 @@
 import { defineComponent } from "vue";
+import SinmaiAlphaSection from './SinmaiAlphaSection';
 import AppearanceSection from "./AppearanceSection";
 import GameDirectorySection from "./GameDirectorySection";
 import ImportOptionsSection from "./ImportOptionsSection";
@@ -11,6 +12,7 @@ export default defineComponent({
         <AppearanceSection />
         <GameDirectorySection />
         <ImportOptionsSection />
+        <SinmaiAlphaSection />
         <AquaMaiSection />
       </div>
     );

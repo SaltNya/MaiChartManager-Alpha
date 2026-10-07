@@ -174,7 +174,7 @@ public static class LinuxProgram
         Locale.Culture = culture;
         CultureInfo.CurrentCulture = culture;
         CultureInfo.CurrentUICulture = culture;
-        MuConvert.utils.Utils.SetLocale(new CultureInfo(locale));
+        MaiChartManager.Services.ChartConversion.SetLocale(new CultureInfo(locale));
 
         // 如果已持久化有效的游戏路径，则恢复它，使应用以管理模式启动。
         if (!string.IsNullOrWhiteSpace(StaticSettings.Config.GamePath) && Directory.Exists(StaticSettings.Config.GamePath))

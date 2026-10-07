@@ -1,4 +1,4 @@
-import { computed, defineComponent, PropType, watch } from "vue";
+﻿import { computed, defineComponent, PropType, watch } from "vue";
 import type { Chart } from "@/client/apiGen";
 import api from "@/client/api";
 import { disableSync, selectedADir, selectedMusic } from "@/store/refs";
@@ -9,6 +9,9 @@ import { useI18n } from 'vue-i18n';
 import { Button, CheckBox, NumberInput, Select, TextInput } from "@munet/ui";
 import { prepareReplaceChart } from "@/components/DragDropDispatcher/ReplaceChartModal";
 import type { ChartSide } from "@/views/Charts/MusicEdit/PreviewChartButton";
+import AlphaDifficultySelect from './AlphaDifficultySelect';
+import AlphaTapInHoldSelect from './AlphaTapInHoldSelect';
+import { sinmaiAlpha } from '@/store/sinmaiAlpha';
 import styles from './index.module.sass';
 
 const LEVELS_OPTIONS = LEVELS.map((level, index) => ({label: level, value: index}));
@@ -62,8 +65,10 @@ export default defineComponent({
           {sideRow('L', t('music.edit.leftChart'))}
           {sideRow('R', t('music.edit.rightChart'))}
         </div>}
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <CheckBox v-model:value={props.chart.enable} class="m-1">{t('music.edit.chartEnable')}</CheckBox>
+          {sinmaiAlpha.value?.installed && props.chartIndex < 5 && props.songId < 100000 && <AlphaDifficultySelect songId={props.songId} level={props.chartIndex}/>}
+          {sinmaiAlpha.value?.installed && selectedADir.value.toUpperCase() !== 'A000' && props.chartIndex < 5 && props.songId < 100000 && <AlphaTapInHoldSelect songId={props.songId} level={props.chartIndex}/>}
           <ProblemsDisplay problems={props.chart.problems!}/>
         </div>
         <div class="ml-1 text-sm">{t('music.edit.chartAuthor')}</div>

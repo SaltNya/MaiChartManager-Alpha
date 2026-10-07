@@ -11,6 +11,7 @@ public enum MovieCodec
 
 public class Config
 {
+    public bool SuppressSinmaiAlphaNotice { get; set; } = false;
     public bool Export { get; set; } = false;
     public string GamePath { get; set; } = "";
     public string OfflineKey { get; set; } = "";

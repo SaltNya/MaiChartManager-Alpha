@@ -1,4 +1,5 @@
 import { computed, defineComponent } from 'vue';
+import SinmaiAlphaNotice from '@/components/SinmaiAlphaNotice';
 import FeedbackErrorDialog from "@/components/FeedbackErrorDialog";
 import NeedPurchaseDialog from "@/components/NeedPurchaseDialog";
 import StartupErrorDialog from "@/components/StartupErrorDialog";
@@ -21,6 +22,7 @@ export default defineComponent({
         <FeedbackErrorDialog />
         <NeedPurchaseDialog />
         <StartupErrorDialog />
+        <SinmaiAlphaNotice />
       </div>
     );
   },

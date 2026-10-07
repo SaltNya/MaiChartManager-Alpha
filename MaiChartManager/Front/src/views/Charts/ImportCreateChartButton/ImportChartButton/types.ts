@@ -24,6 +24,8 @@ export type ImportMeta = {
   id: number,
   importStep: IMPORT_STEP,
   maidata?: File,
+  useAlpha?: boolean,
+  assets?: File[],
   track?: File,
   bg?: File,
   movie?: File,

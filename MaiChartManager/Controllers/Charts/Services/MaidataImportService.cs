@@ -1,4 +1,4 @@
-using MaiChartManager.Models;
+﻿using MaiChartManager.Models;
 using MaiChartManager.Utils;
 using MuConvert.mai;
 using MuConvert.utils;
@@ -64,7 +64,7 @@ public class MaidataImportService : IMaidataImportService
         this.logger = logger;
     }
 
-    public static Dictionary<ShiftMethod, (double sec, decimal bpm, Rational bar)> CalcChartPadding(List<MaiChart> charts)
+    public static Dictionary<ShiftMethod, (double sec, decimal bpm, Rational bar)> CalcChartPadding(List<ImportParsedChart> charts)
     {
         // 谱面导入时，会有两个地方涉及到时间的调整：
         // 1. 对谱面的调整。在下方的ImportMaidata函数中应用，对谱面进行相应的调整（chart.Shift）。
@@ -84,7 +84,7 @@ public class MaidataImportService : IMaidataImportService
         var notePaddingOfEachChart = charts.Select(chart =>
         {
             var bpm = chart.StartBpm;
-            var notePadding = (1 - chart.StartTime.InvariantBar).CanonicalForm;
+            var notePadding = (1 - chart.StartBar).CanonicalForm;
             var sec = (double)(notePadding * (240 / (Rational)bpm));
             return (sec, bpm, notePadding);
         }).ToList();
@@ -176,7 +176,8 @@ public class MaidataImportService : IMaidataImportService
         bool ignoreLevelNum,
         bool debug,
         bool isReplacement = false,
-        UtageImportOptions? utageOptions = null)
+        UtageImportOptions? utageOptions = null,
+        bool useAlpha = false)
     {
         var id = music.Id;
         var isUtage = id >= 100000 || music.GenreId == 107 || utageOptions is not null;
@@ -198,7 +199,7 @@ public class MaidataImportService : IMaidataImportService
         }
         
         // 先执行第一步：Parser，因为可能涉及对Chart做出调整
-        List<(int lv, int targetLevel, string? side, MaidataLevel data, MaiChart? chart, List<Alert> alerts)> parserOutput = [];
+        List<(int lv, int targetLevel, string? side, MaidataLevel data, ImportParsedChart? chart, List<Alert> alerts)> parserOutput = [];
         foreach (var (lv, data) in maiData.Levels)
         {
             string? side = null;
@@ -208,8 +209,7 @@ public class MaidataImportService : IMaidataImportService
             var targetLevel = isUtage ? 0 : targetLevelMap[lv];
             try
             {
-                var parser = new SimaiParser(!isUtage && lv is 2 or 3, maiData.ClockCount);
-                var (chart, alerts) = parser.Parse(data.Inote);
+                var (chart, alerts) = ImportParsedChart.Parse(data.Inote, !isUtage && lv is 2 or 3, maiData.ClockCount, useAlpha);
                 if (chart.TotalNotes == 0)
                 {
                     errors.Add(new ImportChartMessage(string.Format(Locale.ChartNoNotes, lv), MessageLevel.Warning));
@@ -276,7 +276,7 @@ public class MaidataImportService : IMaidataImportService
                     chart.Shift(chartPadding.bar, chartPadding.bpm);
                     logger.LogInformation($"通过chart.Shift应用了{chartPadding}小节的偏移");
                 }
-                var (r, alerts2) = new MA2Generator(isUtage).Generate(chart);
+                var (r, alerts2) = chart.Generate(isUtage);
                 resultMA2 = r;
                 alerts.AddRange(alerts2);
             }
@@ -287,9 +287,12 @@ public class MaidataImportService : IMaidataImportService
                 return new ImportChartResult(errors, true);
             }
 
-            targetChart.MaxNotes = isUtage ? targetChart.MaxNotes + chart.Statistics.Total : chart.Statistics.Total;
+            targetChart.MaxNotes = isUtage ? targetChart.MaxNotes + chart.StatisticsTotal : chart.StatisticsTotal;
             var outputPath = side is null ? targetChart.Path : targetChart.Path.Replace(".ma2", $"_{side}.ma2");
-            File.WriteAllText(Path.Combine(Path.GetDirectoryName(music.FilePath)!, outputPath), resultMA2);
+            var fullOutputPath = Path.Combine(Path.GetDirectoryName(music.FilePath)!, outputPath);
+            File.WriteAllText(fullOutputPath, resultMA2);
+            if(useAlpha) MaiChartManager.Services.SinmaiAlphaIntegration.SaveSource(fullOutputPath, data.Inote, chartPadding.sec, music, targetChart.Designer, data.Level ?? "", maiData.ClockCount.ToString(System.Globalization.CultureInfo.InvariantCulture), isReplacement ? music.Name : maiData.Title, isReplacement ? music.Artist : maiData.Artist);
+            else File.Delete(Path.ChangeExtension(fullOutputPath,".alpha-preview.json"));
             targetChart.Enable = true;
         }
 

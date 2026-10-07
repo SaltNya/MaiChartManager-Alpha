@@ -1,4 +1,4 @@
-﻿using NAudio.Lame;
+using NAudio.Lame;
 using NAudio.Wave;
 using FFMpegCore;
 using VGAudio;
@@ -207,11 +207,24 @@ public static class Audio
     
     private static readonly object _acbFileLoadLock = new();
 
-    public static byte[] AcbToWav(string acbPath)
+    public static byte[] AcbToWav(string acbPath, string? awbPath = null)
     {
         ACB_File acb;
         lock (_acbFileLoadLock) {
-            acb = ACB_File.Load(acbPath);
+            // 预览只读原文件。第三方 Load(path) 会以读写方式打开 AWB，导致只读游戏目录预览失败。
+            awbPath ??= Path.ChangeExtension(acbPath, ".awb");
+            if (!File.Exists(awbPath)) awbPath = Path.Combine(Path.GetDirectoryName(acbPath)!, Path.GetFileNameWithoutExtension(acbPath) + "_streamfiles.awb");
+            IAwbFile? awb = null;
+            if (File.Exists(awbPath))
+            {
+                var bytes = File.ReadAllBytes(awbPath);
+                var signature = bytes.Length >= 4 ? BitConverter.ToInt32(bytes, 0) : 0;
+                awb = signature == Xv2CoreLib.AFS2.AFS2_File.AFS2_SIGNATURE
+                    ? Xv2CoreLib.AFS2.AFS2_File.LoadFromArray(bytes)
+                    : signature == Xv2CoreLib.CPK.AWB_CPK.CPK_SIGNATURE
+                        ? Xv2CoreLib.CPK.AWB_CPK.Load(bytes) : throw new InvalidDataException("Unknown AWB format");
+            }
+            acb = ACB_File.Load(File.ReadAllBytes(acbPath), awb);
         }
         var wave = acb.GetWaveformsFromCue(acb.Cues[0])[0];
         var entry = acb.GetAfs2Entry(wave.AwbId);

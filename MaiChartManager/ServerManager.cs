@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security.Claims;
@@ -102,6 +102,7 @@ public static class ServerManager
             .AddHttpClient()
             .AddSingleton<StaticSettings>()
             .AddSingleton<MaidataImportService>()
+            .AddSingleton<MaiChartManager.Services.AlphaPreviewService>()
             .AddSingleton<MuModService>()
             .AddSingleton<ModConfigService>()
             .AddSingleton<MaiChartManager.Services.ResourceJunctionService>()

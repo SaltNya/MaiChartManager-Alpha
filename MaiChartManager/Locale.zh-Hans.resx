@@ -1,4 +1,4 @@
-﻿<root>
+<root>
     <resheader name="resmimetype">
         <value>text/microsoft-resx</value>
     </resheader>
@@ -331,5 +331,113 @@
   </data>
   <data name="SelectResourceJunctionTargetFolder" xml:space="preserve">
     <value>选择目标游戏目录或 Package 目录</value>
+  </data>
+  <data name="AlphaNativeUtage" xml:space="preserve">
+    <value>该谱面使用原生宴会场规则</value>
+  </data>
+  <data name="AlphaNotInstalled" xml:space="preserve">
+    <value>当前 Package 未安装 Sinmai-Alpha</value>
+  </data>
+  <data name="AlphaUtageThemeUnsupported" xml:space="preserve">
+    <value>宴会场不支持替换难度外观</value>
+  </data>
+  <data name="AlphaSkinRelative" xml:space="preserve">
+    <value>自定义皮肤必须使用谱面目录内的相对路径：</value>
+  </data>
+  <data name="AlphaSkinMissing" xml:space="preserve">
+    <value>缺少谱面引用的自定义皮肤：</value>
+  </data>
+  <data name="AlphaSkinSize" xml:space="preserve">
+    <value>自定义皮肤文件大小无效：</value>
+  </data>
+  <data name="AlphaSkinOutside" xml:space="preserve">
+    <value>皮肤路径超出歌曲目录</value>
+  </data>
+  <data name="AlphaSkinLink" xml:space="preserve">
+    <value>皮肤目录不能是链接</value>
+  </data>
+  <data name="AlphaWindowsOnly" xml:space="preserve">
+    <value>Alpha 播放器当前支持 Windows</value>
+  </data>
+  <data name="AlphaPreviewMissing" xml:space="preserve">
+    <value>缺少 AlphaPreview 预览组件，请安装完整的 MCM-Alpha 包</value>
+  </data>
+  <data name="AlphaPreviewInvalid" xml:space="preserve">
+    <value>预览速度或时间无效</value>
+  </data>
+  <data name="AlphaChartMissing" xml:space="preserve">
+    <value>谱面文件不存在</value>
+  </data>
+  <data name="AlphaPlayerStartFailed" xml:space="preserve">
+    <value>播放器无法启动</value>
+  </data>
+  <data name="AlphaPlayerExited" xml:space="preserve">
+    <value>播放器提前退出，请检查预览日志</value>
+  </data>
+  <data name="AlphaPlayerStartTimeout" xml:space="preserve">
+    <value>播放器启动超时</value>
+  </data>
+  <data name="AlphaAudioLoadFailed" xml:space="preserve">
+    <value>预览音频载入失败：</value>
+  </data>
+  <data name="AlphaUiLoadFailed" xml:space="preserve">
+    <value>预览界面载入失败：</value>
+  </data>
+  <data name="AlphaAudioMissing" xml:space="preserve">
+    <value>找不到此歌曲的音频</value>
+  </data>
+  <data name="AlphaParserStartFailed" xml:space="preserve">
+    <value>预览解析器无法启动</value>
+  </data>
+  <data name="AlphaParseFailed" xml:space="preserve">
+    <value>预览解析失败：</value>
+  </data>
+  <data name="AlphaWindowClosed" xml:space="preserve">
+    <value>预览窗口已关闭</value>
+  </data>
+  <data name="AlphaAudioTimeout" xml:space="preserve">
+    <value>预览音频载入超时</value>
+  </data>
+  <data name="AlphaFrameTimeout" xml:space="preserve">
+    <value>预览首帧绘制超时</value>
+  </data>
+  <data name="AlphaPreviewActiveHint" xml:space="preserve">
+    <value>正在独立窗口预览；关闭预览窗口即可释放内存</value>
+  </data>
+  <data name="AlphaPreviewClosed" xml:space="preserve">
+    <value>预览已关闭</value>
+  </data>
+  <data name="AlphaPreviewActive" xml:space="preserve">
+    <value>正在预览</value>
+  </data>
+  <data name="AlphaPlayerRejected" xml:space="preserve">
+    <value>播放器拒绝预览：</value>
+  </data>
+  <data name="AlphaPlayerLoadFailed" xml:space="preserve">
+    <value>播放器未成功载入谱面：</value>
+  </data>
+  <data name="AlphaSideInvalid" xml:space="preserve">
+    <value>无效的左右谱面选项</value>
+  </data>
+  <data name="AlphaChartPathMissing" xml:space="preserve">
+    <value>谱面没有文件路径</value>
+  </data>
+  <data name="AlphaChartPathOutside" xml:space="preserve">
+    <value>谱面路径超出歌曲目录</value>
+  </data>
+  <data name="AlphaA000Disabled" xml:space="preserve">
+    <value>A000 谱面不启用 Sinmai-Alpha</value>
+  </data>
+  <data name="AlphaDifficultyChartMissing" xml:space="preserve">
+    <value>找不到该难度的谱面文件</value>
+  </data>
+  <data name="AlphaThemeDirectoryMissing" xml:space="preserve">
+    <value>找不到对应的难度目录，请检查 Sinmai-Alpha/ExtraDifficulty</value>
+  </data>
+  <data name="AlphaPreviewTitle" xml:space="preserve">
+    <value>MaiChartManager — Alpha 预览</value>
+  </data>
+  <data name="AlphaPlayerWindowMissing" xml:space="preserve">
+    <value>未找到本次播放器窗口</value>
   </data>
 </root>

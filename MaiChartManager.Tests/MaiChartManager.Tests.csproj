@@ -20,4 +20,8 @@
   <ItemGroup>
     <ProjectReference Include="../MaiChartManager/MaiChartManager.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="../MuConvert/tests/mai/testset/**/*.ma2" Link="Fixtures/NativeMa2/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="../MuConvert-Alpha/MuConvert.csproj" Aliases="Alpha" />
+  </ItemGroup>
 </Project>

@@ -102,7 +102,8 @@ public class ChartController(StaticSettings settings, ILogger<StaticSettings> lo
         IFormFile file,
         string assetDir,
         [FromForm] ShiftMethod shift,
-        [FromForm] string? side = null)
+        [FromForm] string? side = null,
+        [FromForm] bool useAlpha = false)
     {
         var music = settings.GetMusic(id, assetDir);
         if (music == null || file == null) return new ImportChartResult([new ImportChartMessage(Locale.FileUploadFailed, MessageLevel.Fatal)], true);
@@ -149,7 +150,7 @@ public class ChartController(StaticSettings settings, ILogger<StaticSettings> lo
             {
                 if (music.Id < 100000 && chart.Enable && chart.Level > 0) ignoreLevelNum = false;
             }
-            var importResult = importService.ImportMaidata(music, file, shift, ignoreLevelNum, false, true);
+            var importResult = importService.ImportMaidata(music, file, shift, ignoreLevelNum, false, true, useAlpha: useAlpha);
             if (!importResult.Fatal)
             {
                 music.Save();

@@ -137,6 +137,8 @@ export const updateModInfo = async () => {
   modInfo.value = (await api.GetGameModInfo()).data;
 }
 
+import { updateSinmaiAlpha } from '@/store/sinmaiAlpha';
+
 export const updateAll = async () => Promise.all([
   updateVersion(),
   updateGenreList(),
@@ -144,6 +146,7 @@ export const updateAll = async () => Promise.all([
   updateAssetDirs(),
   updateMusicList(),
   updateModInfo(),
+  updateSinmaiAlpha(),
   updateModUpdateInfo(),
   updateAppUpdateInfo(),
   updateAquaMaiConfig(),

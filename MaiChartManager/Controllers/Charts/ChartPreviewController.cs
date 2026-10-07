@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MuConvert.mai;
 
 namespace MaiChartManager.Controllers.Charts;
@@ -25,8 +25,7 @@ public class ChartPreviewController(StaticSettings settings) : ControllerBase
         }
 
         var ma2Content = System.IO.File.ReadAllText(path);
-        var (cvtChart, _) = new MA2Parser().Parse(ma2Content);
-        var (simai, _) = new SimaiGenerator().Generate(cvtChart);
+        var simai = MaiChartManager.Services.ChartConversion.ToSimai(ma2Content);
         
         return $"""
                 &first=0

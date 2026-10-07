@@ -340,4 +340,112 @@ If you notice any issues with the conversion result, you can try testing it in A
   <data name="SelectResourceJunctionTargetFolder" xml:space="preserve">
     <value>Select a target game directory or Package directory</value>
   </data>
+  <data name="AlphaNativeUtage" xml:space="preserve">
+    <value>This chart uses the native UTAGE rules.</value>
+  </data>
+  <data name="AlphaNotInstalled" xml:space="preserve">
+    <value>Sinmai-Alpha is not installed in this Package.</value>
+  </data>
+  <data name="AlphaUtageThemeUnsupported" xml:space="preserve">
+    <value>Difficulty appearances are not supported for UTAGE charts.</value>
+  </data>
+  <data name="AlphaSkinRelative" xml:space="preserve">
+    <value>Custom skins must use a relative path within the chart folder: </value>
+  </data>
+  <data name="AlphaSkinMissing" xml:space="preserve">
+    <value>Custom skin referenced by the chart was not found: </value>
+  </data>
+  <data name="AlphaSkinSize" xml:space="preserve">
+    <value>Invalid custom skin file size: </value>
+  </data>
+  <data name="AlphaSkinOutside" xml:space="preserve">
+    <value>The skin path is outside the song folder.</value>
+  </data>
+  <data name="AlphaSkinLink" xml:space="preserve">
+    <value>The skin folder cannot be a link.</value>
+  </data>
+  <data name="AlphaWindowsOnly" xml:space="preserve">
+    <value>The Alpha player currently supports Windows only.</value>
+  </data>
+  <data name="AlphaPreviewMissing" xml:space="preserve">
+    <value>AlphaPreview components are missing. Install the complete MCM-Alpha package.</value>
+  </data>
+  <data name="AlphaPreviewInvalid" xml:space="preserve">
+    <value>Invalid preview speed or start time.</value>
+  </data>
+  <data name="AlphaChartMissing" xml:space="preserve">
+    <value>The chart file does not exist.</value>
+  </data>
+  <data name="AlphaPlayerStartFailed" xml:space="preserve">
+    <value>Could not start the player.</value>
+  </data>
+  <data name="AlphaPlayerExited" xml:space="preserve">
+    <value>The player exited unexpectedly. Check the preview log.</value>
+  </data>
+  <data name="AlphaPlayerStartTimeout" xml:space="preserve">
+    <value>The player took too long to start.</value>
+  </data>
+  <data name="AlphaAudioLoadFailed" xml:space="preserve">
+    <value>Could not load preview audio: </value>
+  </data>
+  <data name="AlphaUiLoadFailed" xml:space="preserve">
+    <value>Could not load preview controls: </value>
+  </data>
+  <data name="AlphaAudioMissing" xml:space="preserve">
+    <value>Could not find audio for this song.</value>
+  </data>
+  <data name="AlphaParserStartFailed" xml:space="preserve">
+    <value>Could not start the preview parser.</value>
+  </data>
+  <data name="AlphaParseFailed" xml:space="preserve">
+    <value>Could not parse the preview chart: </value>
+  </data>
+  <data name="AlphaWindowClosed" xml:space="preserve">
+    <value>The preview window has closed.</value>
+  </data>
+  <data name="AlphaAudioTimeout" xml:space="preserve">
+    <value>Preview audio loading timed out.</value>
+  </data>
+  <data name="AlphaFrameTimeout" xml:space="preserve">
+    <value>The preview took too long to draw its first frame.</value>
+  </data>
+  <data name="AlphaPreviewActiveHint" xml:space="preserve">
+    <value>Previewing in a separate window. Close it to release the player’s memory.</value>
+  </data>
+  <data name="AlphaPreviewClosed" xml:space="preserve">
+    <value>Preview closed.</value>
+  </data>
+  <data name="AlphaPreviewActive" xml:space="preserve">
+    <value>Preview is playing.</value>
+  </data>
+  <data name="AlphaPlayerRejected" xml:space="preserve">
+    <value>The player rejected the preview: </value>
+  </data>
+  <data name="AlphaPlayerLoadFailed" xml:space="preserve">
+    <value>The player could not load the chart: </value>
+  </data>
+  <data name="AlphaSideInvalid" xml:space="preserve">
+    <value>Invalid left/right chart option.</value>
+  </data>
+  <data name="AlphaChartPathMissing" xml:space="preserve">
+    <value>The chart has no file path.</value>
+  </data>
+  <data name="AlphaChartPathOutside" xml:space="preserve">
+    <value>The chart path is outside the song folder.</value>
+  </data>
+  <data name="AlphaA000Disabled" xml:space="preserve">
+    <value>Sinmai-Alpha is disabled for A000 charts.</value>
+  </data>
+  <data name="AlphaDifficultyChartMissing" xml:space="preserve">
+    <value>Could not find the chart file for this difficulty.</value>
+  </data>
+  <data name="AlphaThemeDirectoryMissing" xml:space="preserve">
+    <value>Could not find the difficulty folder. Check Sinmai-Alpha/ExtraDifficulty.</value>
+  </data>
+  <data name="AlphaPreviewTitle" xml:space="preserve">
+    <value>MaiChartManager — Alpha preview</value>
+  </data>
+  <data name="AlphaPlayerWindowMissing" xml:space="preserve">
+    <value>Could not find this preview player’s window.</value>
+  </data>
 </root>

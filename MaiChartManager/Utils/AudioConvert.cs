@@ -1,4 +1,4 @@
-﻿using NAudio.Lame;
+using NAudio.Lame;
 using Standart.Hash.xxHash;
 using FFMpegCore;
 
@@ -68,7 +68,8 @@ public static class AudioConvert
         var cachePath = Path.Combine(StaticSettings.tempPath, hash + ".wav");
         if (File.Exists(cachePath)) return cachePath;
 
-        var wav = Audio.AcbToWav(acbPath);
+        Directory.CreateDirectory(StaticSettings.tempPath);
+        var wav = Audio.AcbToWav(acbPath, awbPath);
         await File.WriteAllBytesAsync(cachePath, wav);
         return cachePath;
     }

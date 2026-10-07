@@ -1,3 +1,6 @@
+import { importChartWithAssets } from "@/client/api";
+import { alphaImportAssets } from "@/utils/alphaImportAssets";
+import { checkImportConverter } from "@/utils/checkImportConverter";
 import { defineComponent, ref } from "vue";
 import { Button } from "@munet/ui";
 import SelectFileTypeTip from "./SelectFileTypeTip";
@@ -66,8 +69,16 @@ export default defineComponent({
 
       let first = 0, chartPaddings, name = dir.name, isDx = false, previewTime = undefined;
       let maidataLevels: number[] = [];
+      let useAlpha = false;
+      let assets: File[] = [];
       if (maidata) {
-        const checkRet = (await api.ImportChartCheck({ file: maidata })).data;
+        const checked = await checkImportConverter(maidata, dir.name, false, () => step.value !== STEP.checking);
+        const checkRet = checked.check;
+        useAlpha = checked.useAlpha;
+        if (useAlpha && checkRet.accept) {
+          try { assets = await alphaImportAssets(dir, checkRet.alphaAssets ?? []); }
+          catch (error) { reject = true; errors.value.push({ level: MessageLevel.Fatal, message: String(error), name: dir.name }); }
+        }
         reject = reject || !checkRet.accept;
         errors.value.push(...(checkRet.errors || []).map(it => ({ ...it, name: dir.name })));
         first = checkRet.first!;
@@ -90,7 +101,7 @@ export default defineComponent({
         } : undefined;
         meta.value.push({
           id, maidata, bg, track, chartPaddings, name, first, movie, isDx, previewTime,
-          maidataLevels, utageMapping,
+          maidataLevels, utageMapping, useAlpha, assets,
           importStep: IMPORT_STEP.start,
         })
       }
@@ -148,8 +159,10 @@ export default defineComponent({
         if (createRet) throw new Error(createRet);
 
         music.importStep = IMPORT_STEP.chart;
-        const res = (await api.ImportChart({
+        const res = (await importChartWithAssets({
           file: music.maidata,
+          useAlpha: music.useAlpha,
+          assets: music.assets,
           id: music.id,
           ignoreLevelNum: tempOptions.value.ignoreLevel,
           genreId: savedOptions.value.genreId,

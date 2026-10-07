@@ -210,8 +210,7 @@ public partial class MusicTransferController(
                 int.TryParse(MA2VersionRegex().Match(originalContent).Groups[1].Value, out var ma2Version);
                 if (ma2Version == 3) continue; // 已经是103，不需要再转换
                 
-                var (chart, _) = new MA2Parser().Parse(originalContent);
-                var (ma2_103, _) = new MA2_103Generator().Generate(chart);
+                var ma2_103 = MaiChartManager.Services.ChartConversion.ToLegacyMa2(originalContent);
                 System.IO.File.WriteAllText(file, ma2_103);
             }
         }
@@ -393,8 +392,7 @@ public partial class MusicTransferController(
                 int.TryParse(MA2VersionRegex().Match(ma2).Groups[1].Value, out var ma2Version);
                 if (ma2Version != 3)
                 { // 不是103才进行转换，如果已经是103的话，不需要再转换
-                    var (chart, _) = new MA2Parser().Parse(ma2);
-                    (ma2, _) = new MA2_103Generator().Generate(chart);
+                    ma2 = MaiChartManager.Services.ChartConversion.ToLegacyMa2(ma2);
                 }
                 var entry = zipArchive.CreateEntry($"music/music{music.Id:000000}/{Path.GetFileName(file)}");
                 using var stream = entry.Open();
@@ -807,12 +805,11 @@ public partial class MusicTransferController(
         try
         {
             var ma2Content = await System.IO.File.ReadAllTextAsync(chartPath);
-            var (cvtChart, _) = new MA2Parser().Parse(ma2Content);
-            var (simai, _) = new SimaiGenerator().Generate(cvtChart);
+            var simai = MaiChartManager.Services.ChartConversion.ToSimai(ma2Content, out var clockCount);
 
             var lvStr = $"{chart.Level}.{chart.LevelDecimal}";
             simaiFile.AddLevel(simaiLevelId, new MaidataLevel(simai, lvStr, chart.Designer));
-            simaiFile.ClockCount = cvtChart.ClockCount; // 通过多次写入，自然实现取最后一个有效难度的clockCount，作为写入maidata中的
+            simaiFile.ClockCount = clockCount; // 通过多次写入，自然实现取最后一个有效难度的clockCount，作为写入maidata中的
         }
         catch (Exception e)
         {

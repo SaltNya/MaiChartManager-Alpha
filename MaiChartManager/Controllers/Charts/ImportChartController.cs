@@ -1,4 +1,5 @@
-﻿using MaiChartManager.Controllers.Charts.Services;
+using MaiChartManager.Controllers.Charts.Services;
+using MaiChartManager.Services;
 using MaiChartManager.Controllers.Music;
 using Microsoft.AspNetCore.Mvc;
 using MuConvert.mai;
@@ -13,10 +14,10 @@ public class ImportChartController(StaticSettings settings, ILogger<StaticSettin
 {
     public record ImportChartCheckResult(bool Accept, IEnumerable<ImportChartMessage> Errors,
         Dictionary<ShiftMethod, float> chartPaddings, bool IsDx, string? Title, float first,
-        CueConvertController.SetAudioPreviewRequest? previewTime, IEnumerable<int> MaidataLevels);
+        CueConvertController.SetAudioPreviewRequest? previewTime, IEnumerable<int> MaidataLevels, bool RequiresAlphaChoice = false, string[]? AlphaAssets = null);
 
     [HttpPost]
-    public ImportChartCheckResult ImportChartCheck(IFormFile file, [FromForm] bool isReplacement = false)
+    public ImportChartCheckResult ImportChartCheck(IFormFile file, [FromForm] bool isReplacement = false, [FromForm] bool? useAlpha = null)
     {
         var errors = new List<ImportChartMessage>();
         var fatal = false;
@@ -35,6 +36,8 @@ public class ImportChartController(StaticSettings settings, ILogger<StaticSettin
             var maiData = new Maidata(maiDataText);
             var lineNoDict = MaidataImportService.GetLevelLineNo(maiDataText);
 
+            if(useAlpha is null && maiData.Levels.Values.Any(data=>AlphaContentDetector.ContainsAlpha(data.Inote)))
+                return new(false, [], new(), false, maiData.Title, maiData.First, null, maiData.Levels.Keys, true);
             var title = maiData.Title;
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -80,7 +83,7 @@ public class ImportChartController(StaticSettings settings, ILogger<StaticSettin
 
             var first = maiData.First;
             var isDx = false;
-            List<MaiChart> resultCharts = [];
+            List<ImportParsedChart> resultCharts = [];
             foreach (var (lv, data) in maiData.Levels)
             {
                 // 转谱，并记录期间的警告等返回信息
@@ -88,7 +91,7 @@ public class ImportChartController(StaticSettings settings, ILogger<StaticSettin
                 try
                 {
                     //                                                 ↓ 此处的参数应该不会影响 check 的结果
-                    var (chart, alerts1) = new SimaiParser(false, maiData.ClockCount).Parse(data.Inote);
+                    var (chart, alerts1) = ImportParsedChart.Parse(data.Inote, false, maiData.ClockCount, useAlpha == true);
                     alerts.AddRange(alerts1);
                     if (chart.TotalNotes == 0)
                     {
@@ -96,7 +99,7 @@ public class ImportChartController(StaticSettings settings, ILogger<StaticSettin
                         continue;
                     }
                     resultCharts.Add(chart);
-                    var (_, alerts2) = new MA2Generator().Generate(chart);
+                    var (_, alerts2) = chart.Generate();
                     alerts.AddRange(alerts2);
                     isDx = isDx || chart.IsDxChart;
                 }
@@ -135,7 +138,7 @@ public class ImportChartController(StaticSettings settings, ILogger<StaticSettin
             }
             
             return new ImportChartCheckResult(!fatal, errors, chartPaddingsSec, isDx, title, first, previewTime,
-                maiData.Levels.Keys);
+                maiData.Levels.Keys, AlphaAssets: useAlpha == true ? AlphaChartAssets.References(maiDataText) : []);
         }
         catch (Exception e)
         {
@@ -161,17 +164,31 @@ public class ImportChartController(StaticSettings settings, ILogger<StaticSettin
         [FromForm] int? utageBasicLevel = null,
         [FromForm] int? utageLeftLevel = null,
         [FromForm] int? utageRightLevel = null,
-        [FromForm] bool debug = false)
+        [FromForm] bool debug = false,
+        [FromForm] bool useAlpha = false,
+        [FromForm] List<IFormFile>? assets = null)
     {
         var music = settings.GetMusic(id, assetDir);
         var isUtage = genreId == 107 || id >= 100000;
         var utageOptions = isUtage
             ? new UtageImportOptions(utageDoublePlayer, utageBasicLevel, utageLeftLevel, utageRightLevel)
             : null;
+        List<(string Name, byte[] Data)> chartAssets = [];
+        if (useAlpha)
+        {
+            try
+            {
+                using var input = new StreamReader(file.OpenReadStream());
+                chartAssets = AlphaChartAssets.ReadUploads(input.ReadToEnd(), assets);
+            }
+            catch (Exception error) when (error is ArgumentException or IOException)
+            { return new([new ImportChartMessage(error.Message, MessageLevel.Fatal)], true); }
+        }
         var importMaidataResult = importService.ImportMaidata(music!, file, shift, ignoreLevelNum, debug,
-            utageOptions: utageOptions);
+            utageOptions: utageOptions, useAlpha: useAlpha);
         if (!importMaidataResult.Fatal)
         {
+            AlphaChartAssets.Install(Path.GetDirectoryName(music!.FilePath)!, chartAssets);
             music!.AddVersionId = addVersionId;
             music.GenreId = genreId;
             music.Version = version;

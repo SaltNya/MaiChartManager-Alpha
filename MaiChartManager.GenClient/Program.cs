@@ -53,7 +53,7 @@ app.Lifetime.ApplicationStarted.Register(() =>
             var psi = new ProcessStartInfo
             {
                 FileName = "cmd.exe",
-                Arguments = "/c pnpm exec tsx genClient.ts",
+                Arguments = "/c pnpm exec tsx genClient.ts" + (args.Contains("--local-only") ? " --local-only" : ""),
                 WorkingDirectory = frontDir,
                 UseShellExecute = false,
             };

@@ -3,7 +3,7 @@ import {generateApi} from "swagger-typescript-api";
 import path from "node:path";
 
 /* NOTE: all fields are optional expect one of `input`, `url`, `spec` */
-generateApi({
+await generateApi({
   fileName: "apiGen.ts",
   output: path.resolve("src/client"),
   url: "http://localhost:5181/swagger/v1/swagger.json",
@@ -13,7 +13,7 @@ generateApi({
   enumNamesAsValues: true,
 })
 
-generateApi({
+if (!process.argv.includes("--local-only")) await generateApi({
   fileName: "aquaMaiVersionConfigApiGen.ts",
   output: path.resolve("src/client"),
   url: "https://aquamai-version-config.init.ink/openapi.json",
