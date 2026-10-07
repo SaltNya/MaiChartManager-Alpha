@@ -1,18 +1,19 @@
-# MaiChartManager
+# MaiChartManager-Alpha
 
-某八个键音游谱面管理工具
+某八个键音游谱面管理工具fork，兼容Sinmai-Alpha Mod
 
-[<img src="https://user-images.githubusercontent.com/18461360/167066042-8f25b9de-379f-4ea1-bfa3-002d50cf5da6.svg" height="70"/>](https://get.microsoft.com/installer/download/9P1JDKQ60G4G)
+选择游戏 Package 后检测`Mods/Sinmai-Alpha.dll`，安装了 mod 时弹出兼容提示
 
-![image](https://github.com/user-attachments/assets/33dfa8b0-4a40-449b-8fbf-d1f901495402)
+### Sinmai-Alpha Mod适配
+谱面设置的`启用谱面`按钮旁现有选择器，可选难度从游戏`Sinmai-Alpha/ExtraDifficulty`中读取，显示名称和圆点颜色由对应目录的`difficulty.json`决定。
+同时可以设置谱面是否支持Hold夹Tap (宴会场功能)
 
-## 目前已经实现的功能
+### 转谱器选择
 
-- [x] 浏览本地谱面列表
-- [x] 修改谱面基础信息
-- [x] 流派 / 版本分类查看和修改
-- [x] 修改乐曲音频，在音频中增加延迟或裁剪
-- [x] 检查数据中潜在的问题
-- [x] 导入 Simai 谱面
-- [x] 软件内预览谱面
-- [x] 服务器模式运行
+检查发现Alpha语法时，先询问“检测到谱面包含alpha内容，是否使用alpha转谱器？”。
+选“是”后检查与实际转换都使用Alpha；选“否”都使用原版，按原版规则处理不支持的语法。
+未检查到Alpha语法则直接使用原版MuConvert转谱
+
+### Alpha预览
+
+基本预览保持原有功能;Alpha预览启动独立的MajdataViewAlpha窗口，支持Alpha语法。
