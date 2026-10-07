@@ -1,0 +1,15 @@
+Original chart-browser UI reused by Alpha preview
+
+Source: MaiChartManager/Front chart-browser majdata-wasm/Build.bin
+SHA256: 059dbbdd033a163a7a963a8665745b0247390f9e9dbe31c6d8ad137f43044cb0
+Extractor: AssetRipper 2.0.0. Source project lineage: TeamMajdata/MajdataView_web (GPL-3.0).
+
+Buttons, sprites, glyph atlases, hierarchy and serialized UI settings are taken
+from the existing chart browser. The runtime loader reconstructs those Unity
+components, with Unity-version reference/font compatibility. Playback callbacks
+connect them to Alpha. No OnGUI/custom-drawn replacement buttons are used.
+
+UI runtime assets stay outside the DLL. Display and volume settings are local
+to the independent preview window and persist between sessions.
+
+Loading spinner animation: CanvasMain/LoadingText/Image -> Image.controller (e6ef40a64ece5cd4389cd8ce3e14670a) -> New Animation.anim (9565121a933521349a26cbd7c11068ab). State speed 1, loop 1 second, local Euler Z 0 to -360, zero endpoint tangents, unweighted Hermite. PreviewLoading.SpinnerAngle evaluates this curve for both the host and Unity UI.

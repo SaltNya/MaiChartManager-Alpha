@@ -1,0 +1,8 @@
+<Project>
+  <!-- Build the unmodified upstream grammar from checked-in generated sources.
+       This avoids Antlr4BuildTasks' Windows non-ASCII path discovery problem. -->
+  <ItemGroup Condition="$(MSBuildProjectDirectory.EndsWith('MuConvert'))">
+    <Antlr4 Remove="@(Antlr4)" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packaging/MuConvertParser/*.cs" />
+  </ItemGroup>
+</Project>

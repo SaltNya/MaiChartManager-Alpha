@@ -18,6 +18,9 @@
   <Project Path="MuConvert/MuConvert.csproj">
     <BuildType Solution="Crack|*" Project="Release" />
   </Project>
+  <Project Path="MuConvert-Alpha/MuConvert.csproj">
+    <BuildType Solution="Crack|*" Project="Release" />
+  </Project>
   <Project Path="SonicAudioTools/Source/SonicAudioLib/SonicAudioLib.csproj">
     <BuildType Solution="Crack|*" Project="Release" />
   </Project>

@@ -1,0 +1,17 @@
+using Mono.Cecil;
+using Mono.Cecil.Cil;
+var target=Path.GetFullPath(args[0]);
+using var asm=AssemblyDefinition.ReadAssembly(target);
+var start=asm.MainModule.Types.Single(t=>t.Name=="HttpHandler").Methods.Single(m=>m.Name=="Start");
+var prefix=start.Body.Instructions.SingleOrDefault(i=>(i.OpCode==OpCodes.Ldstr && (string)i.Operand=="http://localhost:8013/") || (i.Operand is MethodReference mr && mr.DeclaringType.FullName=="MajdataCore.AlphaSession" && mr.Name=="get_ViewEndpoint"));
+if(prefix==null) throw new InvalidOperationException("Unknown or already patched viewer");
+prefix.OpCode=OpCodes.Ldstr; prefix.Operand="SINMAI_ALPHA_PREVIEW_URL";
+start.Body.GetILProcessor().InsertAfter(prefix,Instruction.Create(OpCodes.Call,new MethodReference("GetEnvironmentVariable", asm.MainModule.TypeSystem.String, new TypeReference("System", "Environment", asm.MainModule, asm.MainModule.TypeSystem.CoreLibrary)) { HasThis=false, Parameters={ new ParameterDefinition(asm.MainModule.TypeSystem.String) } }));
+using var helper=AssemblyDefinition.ReadAssembly(args[1]);
+var initialize=helper.MainModule.Types.Single(t=>t.Name=="PreviewAudio").Methods.Single(m=>m.Name=="Initialize");
+start.Body.GetILProcessor().InsertBefore(start.Body.Instructions[0],Instruction.Create(OpCodes.Call,asm.MainModule.ImportReference(initialize)));
+asm.Write(target+".patched");
+asm.Dispose();
+File.Move(target+".patched",target,true);
+File.Copy(args[1],Path.Combine(Path.GetDirectoryName(target)!,Path.GetFileName(args[1])),true);
+Console.WriteLine("Private loopback endpoint and synchronized audio installed");

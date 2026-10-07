@@ -12,4 +12,19 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'MuConvert'">
+    <MinVerSkip>true</MinVerSkip>
+    <Version>0.4.2</Version>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.EndsWith('MuConvert'))">
+    <!-- Upstream AppVersion expects a commit suffix, including when building a source ZIP without Git. -->
+    <InformationalVersion>0.4.2+0d4e697872cc0f1b6d0561a4da93e20e8cf4e77f</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.EndsWith('MuConvert-Alpha'))">
+    <AssemblyName>MuConvert.Alpha</AssemblyName>
+    <PackageId>MuConvert.Alpha</PackageId>
+    <RootNamespace>MuConvert</RootNamespace>
+    <Version>0.4.2-A</Version>
+  </PropertyGroup>
 </Project>
