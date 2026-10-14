@@ -84,18 +84,31 @@ internal sealed class Ma2Preview
                     var kind = row[0] == "SVSP" ? "SV" : row[0];
                     generator.AdditionalExpressions.Add((Time(row), "<" + kind + "*" + value + ">", true));
                 }
-                else if (group == "\t\tFalse" && row[0] == "NZONE")
-                {
-                    if (!NoiseZoneSpec.TryDecode(row[3], out var noise)) throw new InvalidDataException("Invalid NZONE");
-                    var id = noise.Sensor;
-                    var area = id < 8 ? "A" + (id + 1) : id < 16 ? "B" + (id - 7) : id == 16 ? "C" : id < 25 ? "D" + (id - 16) : "E" + (id - 24);
-                    generator.AdditionalExpressions.Add((Time(row), "X" + area + "[120#" + F(Math.Max(.0001,noise.Duration)) + "]", false));
-                }
             }
             var inote = Visual(groupVisual,parts[2]=="True") + generator.Generate(chart).Item1;
             inote = Regex.Replace(inote, @",\s*E\s*$", ",");
             if (group == "\t\tFalse") output.Insert(0, inote + "\n");
             else output.Append("@*{4}").Append(inote.Replace("\r", "").Replace("\n", "")).Append("*@\n");
+        }
+        // Each baked noise zone owns its original stream controls. Restore it
+        // in a private stream so main-chart curves cannot replace those values.
+        foreach (var row in rows.Where(r => r[0] == "NZONE"))
+        {
+            if (!NoiseZoneSpec.TryDecode(row[3], out var noise)) throw new InvalidDataException("Invalid NZONE");
+            var id=noise.Sensor;
+            var area=id<8?"A"+(id+1):id<16?"B"+(id-7):id==16?"C":id<25?"D"+(id-16):"E"+(id-24);
+            var events=new List<(double time,string text)>();
+            var start=Seconds(row);
+            foreach(var e in noise.Controls?.Entries ?? new List<NoiseControls.Entry>())
+                events.Add((Math.Max(0,start+e.Time),"<"+e.Kind.ToUpperInvariant()+"*"+e.Value+">"));
+            events.Add((start,"X"+area+"[120#"+F(Math.Max(.0001,noise.Duration))+"]"));
+            var stream=new StringBuilder("@*(120)"); double cursor=0;
+            foreach(var e in events.OrderBy(e=>e.time))
+            {
+                if(e.time>cursor+1e-8) stream.Append('{').Append(F(2/(e.time-cursor))).Append("},");
+                stream.Append(e.text); cursor=e.time;
+            }
+            stream.Append("{4},*@\n"); output.Append(stream);
         }
         // 独立流须从全曲零点发出，不能接在主谱末尾。
         var source = output.ToString();
@@ -138,8 +151,9 @@ internal sealed class Ma2Preview
             {
                 if (!PresentationCommands.Decode(kind, row[3], time, out var c)) throw new InvalidDataException("Invalid " + row[0]);
                 if (kind == "jline") Add("colorTable", new { time, noteType="judgeline", color=c.ColorHex, duration=c.Duration, streamIndex=0, sourcePosition=0, live=true });
-                else if (ScreenEffectCommands.IsKind(kind) || kind is "shake" or "flash" or "tint" or "fade" or "jline" or "judgelineexpand")
-                    Add("effectTable", new { time, effect=Name(kind), duration=c.Duration, intensity=c.Target, attack=c.ShakeMode==2?c.Attack:-1, holdTime=c.HoldTime, release=c.Release, paramA=kind=="shake"?c.Frequency:c.ParamA, paramB=kind=="shake"?c.Direction:c.ParamB, hasDirection=c.HasDirection, color=c.ColorHex, stateful=c.ShakeMode==0, enabled=c.ShakeEnabled, transition=c.Duration, gradient=c.Gradient });
+                else if (kind=="judgelineexpand") Add("displayTable",new {time,property="JudgeLineExpand",target=c.Target,duration=c.Duration});
+                else if (ScreenEffectCommands.IsKind(kind) || kind is "shake" or "flash" or "tint" or "fade" or "jline")
+                    Add("effectTable", new { time, effect=Name(kind), duration=c.Duration, intensity=c.Target, attack=c.ShakeMode==2?c.Attack:-1, holdTime=c.HoldTime, release=c.Release, paramA=kind=="shake"?c.Frequency:c.ParamA, paramB=kind=="shake"?c.Direction:c.ParamB, hasDirection=c.HasDirection, color=c.ColorHex, stateful=c.ShakeMode==0, enabled=c.ShakeEnabled, transition=c.Duration, gradient=c.Gradient, rotatePV=c.RotatePV });
                 else Add("displayTable", new { time, property=Name(kind), target=c.Target<0?(kind=="innerbrightness"?defaultBrightness:kind=="combodisplay"?defaultCombo:1):c.Target, duration=c.Duration });
             }
             else if (MediaCommands.IsKind(kind))

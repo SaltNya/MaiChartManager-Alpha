@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$MajdataApp)
+param([Parameter(Mandatory=$true)][string]$MajdataApp, [string]$AdjacentParser)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 $taskSource=[IO.Path]::GetFullPath($MajdataApp)
@@ -7,12 +7,27 @@ $taskEditor=Join-Path $taskSource 'MajdataEdit/MajdataEdit.dll'
 $taskViewer=Join-Path $taskSource 'MajdataView'
 if(!(Test-Path -LiteralPath $taskViewer)){$taskViewer=Join-Path $taskSource 'MajdataViewApp'}
 if(!(Test-Path -LiteralPath (Join-Path $taskViewer 'MajdataView.exe'))){throw 'MajdataView folder not found'}
-if((Get-FileHash -LiteralPath $taskEditor).Hash -ne 'FCB8FC53547FACDB0498083D74FF6ABAF40896A26A854BEC20C11FD92D79A71B'){throw 'Unsupported MajdataEdit parser version'}
-if((Get-FileHash -LiteralPath (Join-Path $taskViewer 'MajdataView_Data/Managed/Assembly-CSharp.dll')).Hash -ne 'E12CFF1CE8C4AC89693604248F443A9EFAA43F942DF9462CA5F2CD9531C59028'){throw 'Unsupported MajdataView version'}
+$taskParserHash=(Get-FileHash -LiteralPath $taskEditor).Hash
+$taskViewerHash=(Get-FileHash -LiteralPath (Join-Path $taskViewer 'MajdataView_Data/Managed/Assembly-CSharp.dll')).Hash
+$taskAlpha060=$taskParserHash -eq '49791C8FC03B344ED80DD1164DDF217C407A4CB033FEF1D6C4EFF3E28C5908A2'
+$taskLegacy=$taskParserHash -eq 'FCB8FC53547FACDB0498083D74FF6ABAF40896A26A854BEC20C11FD92D79A71B'
+if(!$taskAlpha060 -and !$taskLegacy){throw 'Unsupported MajdataEdit parser version'}
+$taskExpectedViewer=if($taskAlpha060){'BFF1BF40EDCB6E426F60F38918B6256AF95DC16783EFBA6B4446ED69541BCFE0'}else{'E12CFF1CE8C4AC89693604248F443A9EFAA43F942DF9462CA5F2CD9531C59028'}
+if($taskViewerHash -ne $taskExpectedViewer){throw 'MajdataEdit and MajdataView must be a matching supported version'}
+if($taskAlpha060 -and (!$AdjacentParser -or !(Test-Path -LiteralPath $AdjacentParser -PathType Leaf))){throw 'Alpha 0.6.0 requires -AdjacentParser pointing to the previous parser with adjacent-key straight support'}
+if($taskAlpha060 -and ([IO.Path]::GetFullPath($AdjacentParser) -eq [IO.Path]::GetFullPath((Join-Path $taskPreview 'Parser/MajdataEdit.dll')))){throw 'AdjacentParser must be outside the output directory so it is not overwritten'}
 New-Item -ItemType Directory -Path (Join-Path $taskPreview 'Viewer'),(Join-Path $taskPreview 'Parser'),(Join-Path $taskPreview 'Bridge') -Force|Out-Null
 Copy-Item -Path (Join-Path $taskViewer '*') -Destination (Join-Path $taskPreview 'Viewer') -Recurse -Force
 foreach($taskName in @('MajdataEdit.dll','Bass.Net.dll','DiscordRPC.dll','ICSharpCode.AvalonEdit.dll','Newtonsoft.Json.dll','TagLibSharp.dll','WPFLocalizeExtension.dll','XAMLMarkupExtensions.dll')){
  Copy-Item -LiteralPath (Join-Path (Join-Path $taskSource 'MajdataEdit') $taskName) -Destination (Join-Path $taskPreview 'Parser') -Force
+}
+foreach($taskName in @('MajdataEdit.deps.json','MajdataEdit.runtimeconfig.json')){
+ $taskFile=Join-Path (Join-Path $taskSource 'MajdataEdit') $taskName
+ if(Test-Path -LiteralPath $taskFile){Copy-Item -LiteralPath $taskFile -Destination (Join-Path $taskPreview 'Parser') -Force}
+}
+if($taskAlpha060){
+ dotnet run --project (Join-Path $taskRoot 'SinmaiAlpha.PreviewPatch') -c Release -- --adjacent (Join-Path $taskPreview 'Parser/MajdataEdit.dll') ([IO.Path]::GetFullPath($AdjacentParser))
+ if($LASTEXITCODE -ne 0){throw 'Adjacent straight parser adaptation failed'}
 }
 $taskSfx=Join-Path $taskPreview 'SFX'
 New-Item -ItemType Directory -Path $taskSfx -Force|Out-Null

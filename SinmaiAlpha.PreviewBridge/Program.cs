@@ -26,7 +26,7 @@ try
     process.GetField("first", flags)!.SetValue(null, useMa2 ? 0f : (float)data.GetProperty("OffsetSeconds").GetDouble());
     var fallback = useMa2 && data.TryGetProperty("Ma2", out var ma2) && ma2.ValueKind == JsonValueKind.String ? new Ma2Preview(ma2.GetString()!) : null;
     var inote = fallback?.Generate() ?? data.GetProperty("Inote").GetString()!;
-    // Default 是 Sinmai-Alpha 扩展：预览使用本窗口的默认显示选项。
+    // Resolve Default against this preview window's display options.
     var defaults = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
         ["COMBODISPLAY"]="Combo", ["INNERBRIGHTNESS"]="0.4", ["OUTERBRIGHTNESS"]="1",
         ["SHOWJUDGETEXT"]="True", ["SHOWJUDGELINE"]="True", ["SHOWCOMBOINFO"]="False", ["SHOWJUDGEINFO"]="False"

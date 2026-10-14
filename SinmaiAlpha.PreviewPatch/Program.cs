@@ -1,5 +1,6 @@
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+if(args.Length==3 && args[0]=="--adjacent") { AdjacentSlides.Apply(Path.GetFullPath(args[1]),Path.GetFullPath(args[2])); return; }
 var target=Path.GetFullPath(args[0]);
 using var asm=AssemblyDefinition.ReadAssembly(target);
 var start=asm.MainModule.Types.Single(t=>t.Name=="HttpHandler").Methods.Single(m=>m.Name=="Start");

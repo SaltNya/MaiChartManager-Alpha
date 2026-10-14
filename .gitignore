@@ -13,3 +13,7 @@ nul
 .omo
 *.lscache
 .vscode/tasks.json
+
+# Local Alpha preview runtime, prepared from the owned MajdataAlpha installation.
+/MaiChartManager/AlphaPreview/
+/artifacts/
